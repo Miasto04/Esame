@@ -1,0 +1,76 @@
+plugins {
+    id 'application'
+}
+
+group = 'it.unicam.cs.mpgc'
+version = '1.0.0'
+
+// Il progetto è scritto in Java 25: Gradle compila, prova e avvia il gioco con un JDK 25
+// (quello installato o, se manca, uno scaricato automaticamente).
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+// JavaFX 25, la versione con supporto a lungo termine che accompagna Java 25.
+// Il gioco disegna tutto su un Canvas: bastano i moduli base e graphics.
+def versioneJavaFx = '25.0.4'
+def moduliJavaFx = ['javafx.base', 'javafx.graphics']
+
+// Su Maven Central ogni modulo JavaFX ha un jar diverso per ogni sistema operativo
+// (contiene le librerie native): si sceglie quello della macchina che compila.
+def piattaformaJavaFx = {
+    String sistema = System.getProperty('os.name').toLowerCase()
+    boolean arm = System.getProperty('os.arch').toLowerCase().contains('aarch64')
+    if (sistema.contains('win')) {
+        return 'win'
+    }
+    if (sistema.contains('mac')) {
+        return arm ? 'mac-aarch64' : 'mac'
+    }
+    return arm ? 'linux-aarch64' : 'linux'
+}()
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    moduliJavaFx.each { modulo ->
+        implementation "org.openjfx:${modulo.replace('.', '-')}:${versioneJavaFx}:${piattaformaJavaFx}"
+    }
+    implementation 'com.google.code.gson:gson:2.13.2'
+
+    testImplementation platform('org.junit:junit-bom:5.14.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.compilerArgs.add('-Xlint:all')
+}
+
+application {
+    mainClass = 'it.unicam.cs.mpgc.rpg132025.Main'
+}
+
+// Il gioco parte dal classpath, mentre JavaFX va caricato dal module path come
+// modulo vero e proprio (è ciò che JavaFX si aspetta). JavaFX usa librerie native:
+// da Java 24 la JVM chiede di autorizzarlo esplicitamente.
+tasks.named('run', JavaExec) {
+    FileCollection tutto = classpath
+    FileCollection javaFx = tutto.filter { File jar ->
+        jar.name.startsWith('javafx-') && jar.name.endsWith("-${piattaformaJavaFx}.jar")
+    }
+    classpath = tutto.filter { File jar -> !jar.name.startsWith('javafx-') }
+    jvmArgumentProviders.add({
+        ['--module-path', javaFx.asPath, '--add-modules', moduliJavaFx.join(','),
+         '--enable-native-access=javafx.graphics']
+    } as CommandLineArgumentProvider)
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+}

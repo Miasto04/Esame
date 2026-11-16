@@ -1,0 +1,6 @@
+plugins {
+    // Se sul computer non c'è un JDK 25, Gradle lo scarica da solo (vedi java.toolchain in build.gradle).
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
+rootProject.name = 'tana-del-drago'

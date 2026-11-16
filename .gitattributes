@@ -1,0 +1,9 @@
+# Lo script di avvio per Linux e macOS deve avere i fine riga Unix
+/gradlew        text eol=lf
+
+# Gli script per Windows devono avere i fine riga Windows
+*.bat           text eol=crlf
+
+# I file binari non vanno toccati
+*.jar           binary
+*.png           binary

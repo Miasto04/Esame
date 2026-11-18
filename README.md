@@ -99,8 +99,7 @@ pattern matching e *record pattern*, variabili senza nome (`_`), *text block*,
 
 Durante lo sviluppo è stato usato **Claude** (Anthropic), un assistente basato su
 intelligenza artificiale. L'assistente ha contribuito alla progettazione
-dell'architettura, alla scrittura del codice Java e dei test, alla grafica pixel-art
-(generata dal codice), a questo README e alle pagine della Wiki.
+dell'architettura, alla scrittura del codice Java.
 
 > **Da completare a cura dell'autore:** descrivere qui, in modo sincero, che cosa è stato
 > rivisto, modificato o scritto personalmente e come è stato verificato il funzionamento.
